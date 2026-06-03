@@ -1,6 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { CONFIG } from "./config.js";
 import { Memory } from "./memory.js";
+import { buildSystemPrompt } from "./business.js";
 
 export type ReplyOptions = {
   /** 빠른 응답 모드: thinking 끄고 effort를 낮춰 지연시간을 줄인다(예: 카카오 5초 제한). */
@@ -15,11 +16,14 @@ export type ReplyOptions = {
 export class Assistant {
   private client: Anthropic;
   private memory: Memory;
+  private systemPrompt: string;
 
   constructor(conversationId: string) {
     // ANTHROPIC_API_KEY 환경변수를 자동으로 읽는다.
     this.client = new Anthropic();
     this.memory = new Memory(conversationId);
+    // business.json(가게 정보)로 만든 "이 가게 전용" 상담 프롬프트
+    this.systemPrompt = buildSystemPrompt();
   }
 
   private params(opts: ReplyOptions = {}): Anthropic.MessageCreateParamsNonStreaming {
@@ -33,7 +37,7 @@ export class Assistant {
       system: [
         {
           type: "text" as const,
-          text: CONFIG.systemPrompt,
+          text: this.systemPrompt,
           cache_control: { type: "ephemeral" as const },
         },
       ],

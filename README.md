@@ -1,113 +1,75 @@
-# 🦞 OpenClaw mini — 나만의 Claude AI 비서
+# 🦞 OpenClaw mini — 가게용 카카오 AI 상담봇
 
-오픈소스 비서 [OpenClaw](https://github.com/openclaw/openclaw)에서 영감을 받아 만든 **미니 개인 AI 비서**입니다.
-두뇌는 **Claude (Opus 4.8)** 를 쓰고, 두 가지 방식으로 대화할 수 있어요.
+동네 가게(미용실·학원·병원·헬스장 등)의 **카카오톡 손님 문의를 24시간 자동 응대**하는 AI 상담봇입니다.
+두뇌는 **Claude (Opus 4.8)**, 가게 사장님은 **`business.json` 파일에 가게 정보만 채우면** 끝.
 
-1. **터미널 채팅** — 지금 바로 컴퓨터에서 대화
-2. **카카오톡 챗봇** — 카카오 i 오픈빌더에 붙여서, 카톡으로 비서 부르기 ("카톡 위에 올라타기" 전략)
-
-> 이건 "감을 잡기 위한 작은 시작점"이에요. 진짜 OpenClaw처럼 내 PC 파일을 직접 조작하진
-> 않지만, 대화·정리·번역·글쓰기·코딩 도움은 잘 해냅니다. 여기서 키워나가면 됩니다.
+> OpenClaw(오픈소스 개인 AI 비서)에서 영감을 받아, **"팔 수 있는 제품"** 으로 좁힌 버전이에요.
+> 카카오와 싸우지 말고 **카카오 위에 올라타는** 전략입니다.
 
 ---
 
-## 빠르게 시작하기
+## 무엇을 하나요?
+- 손님이 카톡 채널로 "영업시간 언제예요?", "커트 얼마예요?", "주차 되나요?" 물으면 → **AI가 가게 정보로 즉시 답변**
+- 모르는 건 지어내지 않고 **전화 연결**을 안내
+- 사장님은 잠잘 때도 손님 문의가 자동으로 처리됨
 
-### 1. 준비물
-- **Node.js 18 이상** (윈도우는 WSL/Ubuntu 권장)
-- **Claude API 키** — https://platform.claude.com 에서 발급
-
-### 2. 설치
+## 빠른 시작 (5분 테스트)
 ```bash
 npm install
-cp .env.example .env      # 윈도우 cmd: copy .env.example .env
+cp .env.example .env            # 윈도우: copy .env.example .env
+cp business.example.json business.json
 ```
-`.env` 파일을 열어 본인 API 키를 넣으세요:
-```
-ANTHROPIC_API_KEY=sk-ant-...
-```
-
-### 3. 점검 (API 키 없이도 됨)
-```bash
-npm run smoke
-```
-설정·기억 저장이 정상인지 확인합니다.
-
-### 4. 터미널에서 대화 🗣️
+1. `.env` 에 Claude API 키 넣기 → `ANTHROPIC_API_KEY=sk-ant-...`
+2. `business.json` 에 **내 가게 정보** 채우기 (상호·시간·메뉴·FAQ)
+3. 손님인 척 대화해보기:
 ```bash
 npm run chat
 ```
 ```
-🦞 OpenClaw mini — Claude 비서 '클로'
-   종료: exit  |  기억 비우기: /reset
-
-나 > 내 이름은 지윤이야
-클로 > 반가워요 지윤님! ...
-나 > 내 이름이 뭐였지?
-클로 > 지윤님이에요 🙂   ← 이전 대화를 기억합니다
+나 > 커트 얼마예요?
+클로 > 커트는 15,000원입니다 :) 예약 도와드릴까요?
 ```
+
+> 📖 **처음이라 막막하다면** → `docs/01-내컴퓨터에서-실행하기.md` 부터 보세요. 클릭 하나하나 안내합니다.
+
+## 카카오에 연결
+```bash
+npm run kakao    # 웹훅 서버 (localhost:3000/kakao/skill)
+```
+카카오 i 오픈빌더 스킬 서버로 연결 → 카톡 채널에서 바로 작동.
+자세한 건 👉 `docs/02-카카오에-연결하기.md`
 
 ---
 
-## 카카오톡에 붙이기 🟡
-
-카카오는 개인 친구 채팅은 봇이 못 읽지만, **카카오 채널(비즈니스) + i 오픈빌더 챗봇**은
-열려 있습니다. 그 챗봇의 "스킬 서버"로 이 프로젝트를 연결하면 됩니다.
-
-### 1. 웹훅 서버 실행
-```bash
-npm run kakao
-# → http://localhost:3000/kakao/skill
+## 폴더 안내
 ```
-
-### 2. 외부에서 접속 가능하게 (개발용)
-카카오가 내 서버로 접속해야 하므로 공개 주소가 필요합니다. 가장 쉬운 건 [ngrok](https://ngrok.com):
-```bash
-ngrok http 3000
-# → https://xxxx.ngrok.io 같은 주소가 생김
-```
-
-### 3. 오픈빌더에 등록
-[카카오 i 오픈빌더](https://i.kakao.com)에서 챗봇 생성 → 스킬 추가 →
-**스킬 URL**에 `https://xxxx.ngrok.io/kakao/skill` 입력 → 폴백 블록에 이 스킬 연결.
-
-이제 카카오 채널에 말을 걸면 Claude가 답합니다.
-
-> ⚠️ 카카오 오픈빌더는 응답을 **5초 안에** 받아야 해서, 카카오 경로는 자동으로 *빠른 모드*
-> (thinking 끔 + effort 낮춤)로 동작합니다. 더 긴 답이 필요하면 오픈빌더의 "콜백" 기능을
-> 써야 하는데, 그건 다음 단계 숙제로 남겨뒀어요.
-
----
-
-## 프로젝트 구조
-```
+business.example.json   가게 정보 양식 (복사해서 business.json 으로 채우기)
 src/
-  config.ts      설정 + 비서 성격(시스템 프롬프트)
-  memory.ts      대화 기억 (data/<id>.json 파일에 저장)
-  assistant.ts   Claude 호출 핵심 (캐싱·적응형 thinking·스트리밍)
-  cli.ts         터미널 채팅
+  business.ts    가게 정보 → "이 가게 전용 상담직원" 프롬프트 생성
+  config.ts      모델·설정
+  memory.ts      대화 기억 (data/<id>.json)
+  assistant.ts   Claude 호출 핵심 (캐싱·스트리밍)
+  cli.ts         터미널 테스트 채팅
   kakao.ts       카카오 i 오픈빌더 웹훅 서버
   smoke.ts       API 키 없이 돌리는 점검
+docs/
+  01-내컴퓨터에서-실행하기.md   ← 초보용 실행 가이드
+  02-카카오에-연결하기.md       ← 카카오 연결 가이드
+  사업킷/                      ← 영업 멘트·가격·수익계산·로드맵
 ```
 
-## 설정값 (.env)
+## 설정 (.env)
 | 변수 | 기본값 | 설명 |
 |------|--------|------|
 | `ANTHROPIC_API_KEY` | (필수) | Claude API 키 |
-| `OPENCLAW_MODEL` | `claude-opus-4-8` | 사용할 모델 |
-| `OPENCLAW_EFFORT` | `high` | 사고 깊이 (low/medium/high/max) |
+| `OPENCLAW_MODEL` | `claude-opus-4-8` | 모델 |
+| `OPENCLAW_EFFORT` | `high` | 사고 깊이 |
 | `OPENCLAW_MAX_TOKENS` | `8000` | 답변 최대 길이 |
-| `OPENCLAW_MAX_TURNS` | `20` | 기억할 최근 대화 턴 수 |
-| `PORT` | `3000` | 카카오 웹훅 서버 포트 |
+| `PORT` | `3000` | 웹훅 포트 |
 
-## 비용 안내 💰
-프로그램은 무료지만 Claude API는 사용량만큼 과금됩니다(가볍게 쓰면 월 $10~30 수준).
-프롬프트 캐싱을 적용해 반복 호출 비용을 줄여뒀습니다.
+## 💰 사업으로 키우기
+가게당 **설치비 + 월 구독료** 모델. 영업 멘트·가격표·수익 계산은 `docs/사업킷/` 폴더에 있어요.
 
----
-
-## 다음 단계 아이디어
-- [ ] 카카오 콜백(callback)으로 긴 답변/스트리밍 지원
-- [ ] 웹 검색·날씨 등 "도구(tool)" 붙이기 → 진짜 행동하는 비서로
-- [ ] 사용자별 메모리를 DB로 옮기기
-- [ ] 음성(STT/TTS) 추가
+## 비용 안내
+프로그램은 무료지만 Claude API는 사용량만큼 과금됩니다. 프롬프트 캐싱으로 비용을 줄여뒀어요.
+가게당 손님 응대 비용은 보통 월 몇 천원 수준 → 구독료에서 충분히 남습니다.
