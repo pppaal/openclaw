@@ -5,20 +5,24 @@
   "type": "module",
   "description": "나만의 미니 AI 비서 — Claude(Opus 4.8) 기반. 터미널 채팅 + 카카오 i 오픈빌더 웹훅.",
   "scripts": {
+    "start": "tsx src/kakao.ts",
     "chat": "tsx src/cli.ts",
     "kakao": "tsx src/kakao.ts",
     "smoke": "tsx src/smoke.ts",
     "typecheck": "tsc --noEmit"
   },
+  "engines": {
+    "node": ">=18"
+  },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.69.0",
     "dotenv": "^16.4.7",
-    "express": "^4.21.2"
+    "express": "^4.21.2",
+    "tsx": "^4.19.2"
   },
   "devDependencies": {
     "@types/express": "^5.0.0",
     "@types/node": "^22.10.0",
-    "tsx": "^4.19.2",
     "typescript": "^5.7.2"
   }
 }
