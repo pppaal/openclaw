@@ -25,6 +25,14 @@ cp business.example.json business.json
 ```bash
 npm run chat
 ```
+
+### 업종별 템플릿 (`examples/`)
+바로 쓸 수 있는 업종별 가게 정보 예시가 있어요. 골라서 `business.json` 으로 복사:
+```bash
+cp examples/무인스터디카페.json business.json    # 윈도우: copy examples\무인스터디카페.json business.json
+npm run chat
+```
+- `examples/무인스터디카페.json` — 2026 시장조사 1순위 타깃 (근거: `docs/사업킷/05-시장조사-무인스터디카페.md`)
 ```
 나 > 커트 얼마예요?
 클로 > 커트는 15,000원입니다 :) 예약 도와드릴까요?
