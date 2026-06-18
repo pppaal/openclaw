@@ -1,7 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { CONFIG } from "./config.js";
 import { Memory } from "./memory.js";
-import { buildSystemPrompt } from "./business.js";
+import { buildSystemPrompt, loadBusiness } from "./business.js";
 import { logQA } from "./logger.js";
 
 export type ReplyOptions = {
@@ -20,13 +20,13 @@ export class Assistant {
   private systemPrompt: string;
   private conversationId: string;
 
-  constructor(conversationId: string) {
+  constructor(conversationId: string, shopId?: string) {
     // ANTHROPIC_API_KEY 환경변수를 자동으로 읽는다.
     this.client = new Anthropic();
     this.memory = new Memory(conversationId);
     this.conversationId = conversationId;
-    // business.json(가게 정보)로 만든 "이 가게 전용" 상담 프롬프트
-    this.systemPrompt = buildSystemPrompt();
+    // business.json / shops 의 가게 정보로 "이 가게 전용" 상담 프롬프트를 만든다
+    this.systemPrompt = buildSystemPrompt(loadBusiness(shopId));
   }
 
   private params(opts: ReplyOptions = {}): Anthropic.MessageCreateParamsNonStreaming {

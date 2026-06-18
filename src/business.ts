@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, "..");
+const shopsDir = path.join(root, "shops");
 
 export type MenuItem = { name: string; price: string };
 export type FaqItem = { q: string; a: string };
@@ -19,16 +20,51 @@ export type BusinessInfo = {
   notes?: string;
 };
 
+/** shops/ 폴더의 가게 목록 (id = 파일명에서 .json 뺀 것) */
+export function listShops(): { id: string; info: BusinessInfo }[] {
+  if (!fs.existsSync(shopsDir)) return [];
+  return fs
+    .readdirSync(shopsDir)
+    .filter((f) => f.endsWith(".json"))
+    .map((f) => ({
+      id: f.replace(/\.json$/, ""),
+      info: JSON.parse(fs.readFileSync(path.join(shopsDir, f), "utf8")) as BusinessInfo,
+    }));
+}
+
+export function shopPath(id: string): string {
+  const safe = id.replace(/[^a-zA-Z0-9_-]/g, "_");
+  return path.join(shopsDir, `${safe}.json`);
+}
+
+export function loadShop(id: string): BusinessInfo {
+  return JSON.parse(fs.readFileSync(shopPath(id), "utf8")) as BusinessInfo;
+}
+
+export function saveShop(id: string, info: BusinessInfo): void {
+  fs.mkdirSync(shopsDir, { recursive: true });
+  fs.writeFileSync(shopPath(id), JSON.stringify(info, null, 2));
+}
+
+export function defaultShopId(): string {
+  if (process.env.OPENCLAW_SHOP) return process.env.OPENCLAW_SHOP;
+  const shops = listShops();
+  return shops[0]?.id ?? "demo-studycafe";
+}
+
 /**
- * 가게 정보를 불러온다.
- * - business.json 이 있으면 그걸(=실제 사장님이 채운 정보) 사용
- * - 없으면 business.example.json(데모 데이터)로 바로 돌아가게 한다
+ * 가게 정보를 불러온다 (기존 호환).
+ * 1) 루트 business.json 이 있으면 그걸(빠른 단일 가게 테스트용)
+ * 2) 없으면 shops/ 의 기본 가게
+ * 3) 그것도 없으면 business.example.json
  */
-export function loadBusiness(): BusinessInfo {
-  const real = path.join(root, "business.json");
-  const example = path.join(root, "business.example.json");
-  const file = fs.existsSync(real) ? real : example;
-  return JSON.parse(fs.readFileSync(file, "utf8")) as BusinessInfo;
+export function loadBusiness(shopId?: string): BusinessInfo {
+  if (shopId) return loadShop(shopId);
+  const rootBiz = path.join(root, "business.json");
+  if (fs.existsSync(rootBiz)) return JSON.parse(fs.readFileSync(rootBiz, "utf8")) as BusinessInfo;
+  const shops = listShops();
+  if (shops.length > 0) return loadShop(defaultShopId());
+  return JSON.parse(fs.readFileSync(path.join(root, "business.example.json"), "utf8")) as BusinessInfo;
 }
 
 /** 가게 정보를 바탕으로 "이 가게 전용 상담 직원" 시스템 프롬프트를 만든다. */

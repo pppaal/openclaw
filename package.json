@@ -8,6 +8,7 @@
     "start": "tsx src/kakao.ts",
     "chat": "tsx src/cli.ts",
     "kakao": "tsx src/kakao.ts",
+    "admin": "tsx src/admin.ts",
     "smoke": "tsx src/smoke.ts",
     "report": "tsx src/report.ts",
     "typecheck": "tsc --noEmit"

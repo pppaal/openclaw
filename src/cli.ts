@@ -1,9 +1,10 @@
 import readline from "node:readline";
 import { Assistant } from "./assistant.js";
 
-// node src/cli.ts [대화ID]  — 대화ID별로 기억이 따로 저장됨
-const conversationId = process.argv[2] || "cli-default";
-const assistant = new Assistant(conversationId);
+// npm run chat [가게ID]  — shops/ 의 특정 가게로 테스트 (없으면 기본 가게)
+const shopId = process.argv[2];
+const conversationId = `cli-${shopId || "default"}`;
+const assistant = new Assistant(conversationId, shopId);
 
 const rl = readline.createInterface({
   input: process.stdin,

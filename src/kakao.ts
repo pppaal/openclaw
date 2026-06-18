@@ -15,10 +15,12 @@ app.use(express.json());
 app.post("/kakao/skill", async (req, res) => {
   const utterance: string = req.body?.userRequest?.utterance ?? "";
   const userId: string = req.body?.userRequest?.user?.id ?? "anonymous";
+  // 여러 가게를 한 서버로 운영: 스킬 URL 뒤에 ?shop=가게ID 를 붙여 가게별 분기
+  const shopId = typeof req.query.shop === "string" ? req.query.shop : undefined;
 
   let text: string;
   try {
-    const assistant = new Assistant(`kakao-${userId}`);
+    const assistant = new Assistant(`kakao-${shopId || "default"}-${userId}`, shopId);
     text = await assistant.reply(utterance, { fast: true });
   } catch (err) {
     console.error("Claude 호출 실패:", err);

@@ -6,7 +6,7 @@
 import assert from "node:assert";
 import { CONFIG } from "./config.js";
 import { Memory } from "./memory.js";
-import { loadBusiness, buildSystemPrompt } from "./business.js";
+import { loadBusiness, buildSystemPrompt, listShops } from "./business.js";
 
 console.log("1) 설정 로딩 확인");
 assert.ok(CONFIG.model, "model이 비어있음");
@@ -18,6 +18,10 @@ assert.ok(biz.shopName, "가게 이름이 비어있음");
 const prompt = buildSystemPrompt(biz);
 assert.ok(prompt.includes(biz.shopName), "프롬프트에 가게 이름이 들어가야 함");
 console.log(`   가게="${biz.shopName}"(${biz.industry}), 메뉴 ${biz.menu.length}개, FAQ ${biz.faq.length}개`);
+
+console.log("1-3) 멀티 가게(shops/) 로딩 확인");
+const shops = listShops();
+console.log(`   등록된 가게 ${shops.length}곳: ${shops.map((s) => s.id).join(", ")}`);
 
 console.log("2) 메모리 저장/불러오기 확인");
 const mem = new Memory("smoke-test");
