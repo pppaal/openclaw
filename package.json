@@ -9,6 +9,7 @@
     "chat": "tsx src/cli.ts",
     "kakao": "tsx src/kakao.ts",
     "smoke": "tsx src/smoke.ts",
+    "report": "tsx src/report.ts",
     "typecheck": "tsc --noEmit"
   },
   "engines": {
